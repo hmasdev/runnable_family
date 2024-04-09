@@ -1,3 +1,4 @@
+from langchain.pydantic_v1 import create_model
 from langchain_core.runnables import (
     Runnable,
     RunnableBranch,
@@ -7,7 +8,8 @@ from langchain_core.runnables import (
     RunnableParallel,
 )
 from langchain_core.runnables.base import Input, Output
-from langchain_core.runnables.graph import Graph
+import langchain_core.runnables.graph
+from langgraph.graph.graph import Graph, CompiledGraph, END
 from typing import Callable
 from uuid import uuid4
 from .basic import RunnableConstant, RunnableAdd
@@ -16,6 +18,9 @@ from .basic import RunnableConstant, RunnableAdd
 class RunnableLoopback(Runnable[Input, Output]):
     '''Runnable that loops back the output to the input.
     '''
+
+    _graph: CompiledGraph
+    '''Compiled graph of the runnable.'''
 
     _runnable: Runnable[Input, Output]
     '''Runnable to be looped back.'''
@@ -30,6 +35,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         condition: Runnable[Output, bool] | Callable[[Output], bool],
         loopback: Runnable[Output, Input],
     ):
+        # components
         self._runnable = runnable
         if not isinstance(condition, Runnable):
             self._condition = RunnableLambda(condition)
@@ -37,14 +43,24 @@ class RunnableLoopback(Runnable[Input, Output]):
             self._condition = condition
         self._loopback = loopback
 
+        # create graph
+        graph = Graph()
+        graph.add_node('runnable', runnable)
+        graph.add_node('loopback', loopback)
+        graph.add_conditional_edges(
+            'runnable',
+            condition | RunnableLambda(lambda b: 'continue' if b else 'end'),
+            {
+                'continue': 'loopback',
+                'end': END,
+            },
+        )
+        graph.add_edge('loopback', 'runnable')
+        graph.set_entry_point('runnable')
+        self._graph = graph.compile()
+
     def invoke(self, input: Input, *args, **kwargs) -> Output:
-        return (
-            self._runnable
-            | RunnableBranch(
-                (self._condition, self._loopback | self),
-                RunnablePassthrough(),
-            )
-        ).invoke(input, *args, **kwargs)
+        return self._graph.invoke(input, *args, **kwargs)  # type: ignore
 
     @classmethod
     def with_n_loop(
@@ -97,12 +113,17 @@ class RunnableLoopback(Runnable[Input, Output]):
             loopback=_loopback,  # type: ignore
         ) | RunnablePassthrough().pick(output_key)
 
-    def get_graph(self, config: RunnableConfig | None = None) -> Graph:
-
-        graph = Graph()
+    def get_graph(self, config: RunnableConfig | None = None) -> langchain_core.runnables.graph.Graph:  # noqa
+        graph = langchain_core.runnables.graph.Graph()
         # create input/oupput nodes
-        input_node = graph.add_node(self.get_input_schema(config))
-        output_node = graph.add_node(self.get_output_schema(config))
+        try:
+            input_node = graph.add_node(self.get_input_schema(config))
+        except TypeError:
+            input_node = graph.add_node(create_model(self.get_name("Input")))
+        try:
+            output_node = graph.add_node(self.get_output_schema(config))
+        except TypeError:
+            output_node = graph.add_node(create_model(self.get_name("Output")))
         # cretae sugraphs
         runnable_graph = self._runnable.get_graph(config)
         condition_graph = self._condition.get_graph(config)
