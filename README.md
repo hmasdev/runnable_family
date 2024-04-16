@@ -7,7 +7,7 @@
 
 ![Scheduled Test](https://github.com/hmasdev/runnable_family/actions/workflows/tests-on-schedule.yaml/badge.svg)
 
-A python library implementing a family of Runnables in langchain
+A python library implementing a family of Runnables in langchain like loopback, self-consistent, self-refine, and self-translate.
 
 ## Requirements
 
@@ -52,7 +52,8 @@ pip install .
 Just import your favorite classes.
 
 ```python
-from runnable_family.basic import RunnableConstant, RunnableAdd, RunnableLoopback
+from runnable_family.basic import RunnableConstant, RunnableAdd
+from runnable_family.loopback import RunnableLoopback
 from runnable_family.gacha import RunnableGacha
 from runnable_family.runnable_diff import RunnableDiff
 from runnable_family.self_consistent import RunnableSelfConsistent
@@ -61,6 +62,8 @@ from runnable_family.self_translate import RunnableSelfTranslate
 ```
 
 They are inherited from the Runnable class, so you can use them as a Runnable, that is, you can use them as chain components.
+
+See [basic-example.ipynb](./examples/basic-example.ipynb) to see how to use them.
 
 ## Development
 
