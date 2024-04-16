@@ -63,7 +63,7 @@ from runnable_family.self_translate import RunnableSelfTranslate
 
 They are inherited from the Runnable class, so you can use them as a Runnable, that is, you can use them as chain components.
 
-See [basic-example.ipynb](./examples/basic-example.ipynb) to see how to use them.
+See [basic-examples.ipynb](./examples/basic-examples.ipynb) to see how to use them.
 
 ## Development
 
