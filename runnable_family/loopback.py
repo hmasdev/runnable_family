@@ -106,7 +106,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         _loopback = RunnableParallel(**{
             output_key: RunnablePassthrough().pick(output_key) | loopback,
             counter_key: RunnablePassthrough().pick(counter_key) | RunnableAdd(1),  # noqa
-        })
+        })  # type: ignore
         return cls(
             runnable=_runnable,  # type: ignore
             condition=_condition,  # type: ignore

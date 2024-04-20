@@ -25,8 +25,7 @@ class RunnableSelfConsistent(Runnable[Input, Output]):
         if callable(aggregate):
             aggregate = RunnableLambda(aggregate)
         self._self_consistent_chain = (
-            RunnableParallel(
-                **{str(i): runnable for i, runnable in enumerate(runnables)})
+            RunnableParallel(**{str(i): runnable for i, runnable in enumerate(runnables)})  # type: ignore # noqa
             | RunnableLambda(dict.values)
             | RunnableLambda(list)
             | aggregate

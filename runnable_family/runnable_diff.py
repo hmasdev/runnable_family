@@ -25,7 +25,7 @@ class RunnableDiff(Runnable[Input, Output]):
             RunnableParallel(**{
                 'output1': runnable1,
                 'output2': runnable2,
-            })
+            })  # type: ignore
             | RunnableLambda(dict.values)
             | RunnableLambda(list)
             | diff
