@@ -1,3 +1,4 @@
+from collections import Counter
 from langchain_core.runnables import (
     Runnable,
     RunnableLambda,
@@ -13,6 +14,14 @@ class RunnableSelfConsistent(Runnable[Input, Output]):
     ''' A simple implementation of Self-Consistent Chain as described in the paper:
 
     Ref. https://arxiv.org/pdf/2203.11171.pdf
+
+    Args:
+        runnables: Iterable[Runnable[Input, InterMediate]]: A list of runnables
+        aggregate: Runnable[Iterable[InterMediate], Output] | Callable[[Iterable[InterMediate]], Output]:
+            A runnable or a callable to aggregate the output of the runnables.
+            Default is to count the most common output.
+            If there are the most common outputs, the first one is returned,
+            e.g. 1 is returned for the runnables' output [0, 1, 1, 2, 2].
     '''  # noqa
 
     _self_consistent_chain: Runnable[Input, Output]
@@ -20,7 +29,11 @@ class RunnableSelfConsistent(Runnable[Input, Output]):
     def __init__(
         self,
         runnables: Iterable[Runnable[Input, InterMediate]],
-        aggregate: Runnable[Iterable[InterMediate], Output] | Callable[[Iterable[InterMediate]], Output],  # noqa
+        aggregate: Runnable[Iterable[InterMediate], Output] | Callable[[Iterable[InterMediate]], Output] = (  # noqa
+            RunnableLambda(Counter)  # type: ignore
+            | RunnableLambda(lambda counter: counter.most_common())
+            | RunnableLambda(lambda most_common: most_common[0][0])
+        )
     ):
         if callable(aggregate):
             aggregate = RunnableLambda(aggregate)
