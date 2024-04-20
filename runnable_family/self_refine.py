@@ -36,7 +36,7 @@ class RunnableSelfRefine(Runnable[Input, Output]):
                 input_key: RunnablePassthrough().pick(input_key),
                 output_key: RunnablePassthrough().pick(output_key),
                 feedback_key: feedback,
-            })
+            })  # type: ignore
             | refine
         ).with_types(
             input_type=runnable.InputType,  # type: ignore
