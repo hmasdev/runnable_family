@@ -41,3 +41,37 @@ def test_runnable_self_consistent(
         assert chain.OutputType == aggregate.OutputType
     else:
         assert chain.OutputType == Any
+
+
+@pytest.mark.parametrize(
+    'chain_returns, expected',
+    [
+        (
+            [0,],
+            0,
+        ),
+        (
+            [0, 1, 1],
+            1,
+        ),
+        (
+            [2, 2, 2, 1, 1, 0],
+            2,
+        ),
+        (
+            # Case of multiple most common outputs
+            [0, 1, 1, 2, 2],
+            1,
+        ),
+    ]
+)
+def test_runnable_self_consistent_with_default_aggregate(
+    chain_returns: list[int],
+    expected: int,
+) -> None:
+    chain = RunnableSelfConsistent(runnables=[
+        (lambda *args, val=v, **kwargs: val)  # type: ignore
+        for v in chain_returns
+    ])
+    actual = chain.invoke(chain_returns)
+    assert actual == expected
