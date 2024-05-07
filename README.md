@@ -55,6 +55,7 @@ Just import your favorite classes.
 from runnable_family.basic import RunnableConstant, RunnableAdd
 from runnable_family.loopback import RunnableLoopback
 from runnable_family.gacha import RunnableGacha
+from runnable_family.random import RunnableRandomBranch
 from runnable_family.runnable_diff import RunnableDiff
 from runnable_family.self_consistent import RunnableSelfConsistent
 from runnable_family.self_refine import RunnableSelfRefine
