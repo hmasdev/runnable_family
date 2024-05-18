@@ -50,6 +50,7 @@ def test_runnable_random_branch(
         ([0.25, 0.5, 0, 0.25], 0.75, 1),
         ([0.25, 0.5, 0, 0.25], 0.9, 3),
         ([0.25, 0.5, 0, 0.25], 1.0, 3),
+        ([0.25, 0.5, 0, 0.25-1e-16], 1.0, 3),  # small numerical error
     ]
 )
 def test_runnable_random_branch_with_probs(
@@ -69,13 +70,16 @@ def test_runnable_random_branch_with_probs(
 @pytest.mark.parametrize(
     'probs',
     [
-        [0.1, 0.2, 0.3],  # sum = 0.6
-        [0.1, 0.2, 0.3, 0.4, 0.5],  # sum = 1.5
+        [0.1, 0.2, 0.1, 0.2],  # sum = 0.6
+        [0.1, 0.2, 0.3, 0.5],  # sum = 1.1
     ]
 )
 def test_runnable_random_branch_with_invalid_probs(
     probs: list[float],
 ):
+    # check if the sum of probabilities is 1.0
+    assert sum(probs) != 1.0
+    # run test
     with pytest.raises(ValueError):
         RunnableRandomBranch(*runnables, probs=probs)
 
