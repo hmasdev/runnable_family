@@ -24,6 +24,8 @@ class RunnableRandomBranch(Runnable[Input, Output]):
     _generate_random_value: Callable[[], float]
     """Function to generate a random number."""
 
+    __allowed_numerical_error: float = 1e-8
+
     def __init__(
         self,
         *runnables: Runnable[Input, Output] | Callable[[Input], Output],
@@ -35,8 +37,17 @@ class RunnableRandomBranch(Runnable[Input, Output]):
             probs = [1./len(runnables)] * len(runnables)
 
         # validation
-        if sum(probs) != 1.0:
+        # check non-negative probabilities
+        if any(map(lambda x: x < 0, probs)):
+            raise ValueError(f'Probabilities must be non-negative: probs={probs}')  # noqa
+        # check the sum of probabilities
+        if abs(sum(probs) - 1.0) > self.__allowed_numerical_error:
+            # NOTE: the difference is allowed to be within a small numerical error  # noqa
             raise ValueError(f'The sum of probabilities must be 1.0: sum={sum(probs)}')  # noqa
+
+        # adjust the last probability to make the sum 1.0
+        probs = list(probs)
+        probs[-1] = 1.0 - sum(probs[:-1])
 
         # set attributes
         self._runnables = [
