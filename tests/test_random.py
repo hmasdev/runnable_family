@@ -96,3 +96,19 @@ def test_runnable_random_branch_with_invalid_random_value(
     )
     with pytest.raises(ValueError):
         chain.invoke(0)
+
+
+@pytest.mark.parametrize(
+    'probs',
+    [
+        [-0.1, 0.2, 0.3, 0.6],
+        [0.1, -0.2, 0.3, 0.8],
+        [0.1, 0.2, -0.3, 1.0],
+    ]
+)
+def test_runnable_random_branch_with_negative_probability(probs: list[float]):  # noqa
+    # check if the sum of probabilities is 1.0
+    assert sum(probs) == 1.0
+    # run test
+    with pytest.raises(ValueError):
+        RunnableRandomBranch(*runnables, probs=probs)

@@ -35,7 +35,11 @@ class RunnableRandomBranch(Runnable[Input, Output]):
             probs = [1./len(runnables)] * len(runnables)
 
         # validation
-        if sum(probs) != 1.0:
+        # check non-negative probabilities
+        if any(map(lambda x: x < 0, probs)):
+            raise ValueError(f'Probabilities must be non-negative: probs={probs}')  # noqa
+        # check the sum of probabilities
+        if sum(probs) == 1.0:
             raise ValueError(f'The sum of probabilities must be 1.0: sum={sum(probs)}')  # noqa
 
         # set attributes
