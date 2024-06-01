@@ -52,7 +52,7 @@ pip install .
 Just import your favorite classes.
 
 ```python
-from runnable_family.basic import RunnableConstant, RunnableAdd, RunnableLog
+from runnable_family.basic import RunnableConstant, RunnableAdd, RunnablePartialLambda, RunnableLog
 from runnable_family.loopback import RunnableLoopback
 from runnable_family.gacha import RunnableGacha
 from runnable_family.random import RunnableRandomBranch

@@ -49,6 +49,18 @@ class RunnableAdd(RunnableLambda[Input, Output]):
             return self._constant + x  # type: ignore
 
 
+class RunnablePartialLambda(RunnableLambda[Input, Output]):
+    '''RunnableLambda with keyword arguments bound.
+
+    Args:
+        func: Either sync or async callable
+        **kwargs: Keyword arguments to bound to the function.
+    '''
+
+    def __init__(self, func: Callable[[Input], Output], **kwargs):
+        super().__init__(partial(func, **kwargs))
+
+
 class RunnableLog(RunnableLambda[T, T]):
     '''Runnable that logs the input before returning it.
 
