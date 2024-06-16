@@ -72,7 +72,7 @@ def test_runnable_partial_lambda(
     mock_func.assert_called_once_with(input_obj, **kwargs)
 
 
-@ pytest.mark.parametrize(
+@pytest.mark.parametrize(
     'input_obj',
     [
         0,
