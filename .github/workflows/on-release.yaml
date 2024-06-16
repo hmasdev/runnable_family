@@ -1,0 +1,54 @@
+name: Build and Release On Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    uses: ./.github/workflows/pytest-workflow-call.yaml
+    with:
+      git-ref: ${{ github.ref }}
+  static-type-check:
+    uses: ./.github/workflows/static-type-check-workflow-call.yaml
+    with:
+      git-ref: ${{ github.ref }}
+  code-style-check:
+    uses: ./.github/workflows/code-style-check-workflow-call.yaml
+    with:
+      git-ref: ${{ github.ref }}
+  validate-version:
+    uses: ./.github/workflows/validate-version-workflow-call.yaml
+    with:
+      git-ref: ${{ github.ref }}
+  deploy:
+    needs: [test, static-type-check, code-style-check, validate-version]
+    runs-on: ubuntu-latest
+    env:
+      PRIVATE_REPO_USER: "hmasdev"
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip wheel setuptools twine
+          python -m pip install -e .[dev]
+      - name: Build
+        run: |
+          python setup.py sdist bdist_wheel
+          echo "asset_name=$(ls dist/*whl | cut -d / -f 2)" >> $GITHUB_ENV
+      - name: Upload to GitHub
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/*.whl
+          asset_name: ${{ env.asset_name }}
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
