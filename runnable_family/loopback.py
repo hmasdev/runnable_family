@@ -1,4 +1,4 @@
-from langchain.pydantic_v1 import create_model
+import langchain
 from langchain_core.runnables import (
     Runnable,
     RunnableBranch,
@@ -13,6 +13,11 @@ from langgraph.graph.graph import Graph, CompiledGraph, END
 from typing import Callable
 from uuid import uuid4
 from .basic import RunnableConstant, RunnableAdd
+
+if langchain.__version__ < '0.3.0':
+    from langchain.pydantic_v1 import create_model
+else:
+    from pydantic import create_model  # type: ignore
 
 
 class RunnableLoopback(Runnable[Input, Output]):
@@ -119,11 +124,11 @@ class RunnableLoopback(Runnable[Input, Output]):
         try:
             input_node = graph.add_node(self.get_input_schema(config))
         except TypeError:
-            input_node = graph.add_node(create_model(self.get_name("Input")))
+            input_node = graph.add_node(create_model(self.get_name("Input")))  # type: ignore # noqa
         try:
             output_node = graph.add_node(self.get_output_schema(config))
         except TypeError:
-            output_node = graph.add_node(create_model(self.get_name("Output")))
+            output_node = graph.add_node(create_model(self.get_name("Output")))  # type: ignore # noqa
         # cretae sugraphs
         runnable_graph = self._runnable.get_graph(config)
         condition_graph = self._condition.get_graph(config)
