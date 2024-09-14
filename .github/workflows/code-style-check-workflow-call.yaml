@@ -40,3 +40,10 @@ jobs:
         run: |
           flake8 runnable_family --show-source
           flake8 tests --show-source
+
+      - name: Run flake8 for langchain<0.3.0
+        run: |
+          # code stylel check for backward compatibility
+          pip install -U "langchain<0.3.0"
+          flake8 runnable_family --show-source
+          flake8 tests --show-source
