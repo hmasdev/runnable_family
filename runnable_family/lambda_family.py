@@ -5,11 +5,22 @@ from langchain_core.runnables.base import Input, Output
 
 
 class RunnablePartialLambda(RunnableLambda[Input, Output]):
-    '''RunnableLambda with keyword arguments bound.
+    '''Runnable that binds keyword arguments to a function.
 
     Args:
-        func: Either sync or async callable
-        **kwargs: Keyword arguments to bound to the function.
+        func: The function to bind the keyword arguments to.
+        **kwargs: Keyword arguments to bind to the function.
+
+    Example:
+        >>> from runnable_family.lambda_family import RunnablePartialLambda
+        >>> def my_func(x, a, b):
+        ...     return x + a + b
+        >>> partial_lambda = RunnablePartialLambda(my_func, a='A', b='B')
+        >>> result = partial_lambda.invoke('x')
+        >>> print(result)  # Output: 'xAB'
+
+    Note:
+        This class is equivalent to `RunnableLambda(partial(func, **kwargs))`.
     '''
 
     def __init__(self, func: Callable[[Input], Output], **kwargs):
