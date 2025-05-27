@@ -23,23 +23,23 @@ def test_runnable_constant(
 
 
 @pytest.mark.parametrize(
-    'a, b, left, expected',
+    'x, constant, prepend, expected',
     [
-        (1, 2, True, 3),
-        (2, 3, False, 5),
-        ('a', 'b', True, 'ab'),
-        ('b', 'c', False, 'cb'),
+        (1, 2, True, 2 + 1),
+        (2, 3, False, 2 + 3),
+        ('a', 'b', True, 'b' + 'a'),
+        ('b', 'c', False, 'b' + 'c'),
     ]
 )
 def test_runnable_add(
-    a: str | int,
-    b: str | int,
-    left: bool,
+    x: str | int,
+    constant: str | int,
+    prepend: bool,
     expected: str | int,
 ):
-    assert type(a) is type(b)
-    add_b: RunnableAdd = RunnableAdd(b, left=left)
-    assert add_b.invoke(a) == expected
+    assert type(x) is type(constant)
+    add_b: RunnableAdd = RunnableAdd(constant, prepend=prepend)
+    assert add_b.invoke(x) == expected
 
 
 def test_runnable_add_with_non_addable():
