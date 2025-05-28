@@ -1,7 +1,9 @@
 from langchain_core.runnables import (
     Runnable,
+    RunnableAssign,
     RunnableParallel,
     RunnablePassthrough,
+    RunnableSequence,
 )
 from langchain_core.runnables.base import Input, Output
 from typing import Any, TypeVar
@@ -10,11 +12,47 @@ InterMediate = TypeVar("InterMediate", covariant=True)
 InterMediate2 = TypeVar("InterMediate2", covariant=True)
 
 
-class RunnableSelfRefine(Runnable[Input, Output]):
-    ''' A simple implementation of Self-Refine Chain as described in the paper:
+class RunnableSelfRefine(RunnableSequence[Input, Output]):
+    """A Runnable that implements the Self-Refine methodology for iterative
+    refinement using LangChain Runnables. It allows for a sequence of
+    refinement steps where the output of one step can be used as feedback
+    for the next step.
 
-    Ref. https://arxiv.org/pdf/2303.17651.pdf
-    '''
+    This runnable is inspired by the self-refine approach in
+    "Self-Refine: Iterative Refinement with Self-Feedback"
+    (https://arxiv.org/pdf/2303.17651.pdf).
+
+    Args:
+        runnable: The initial runnable that produces an intermediate output.
+        feedback: A runnable that takes the intermediate output and produces
+            feedback for refinement.
+        refine: A runnable that takes the input, intermediate output, and
+            feedback to produce the final output.
+        input_key: The key in the input dictionary for the initial input.
+        output_key: The key in the output dictionary for the final output.
+        feedback_key: The key in the input dictionary for the feedback.
+
+    Example:
+        >>> from langchain_core.runnables import RunnableLambda
+        >>> from runnable_family.self_refine import RunnableSelfRefine
+        >>> def initial_runnable(input):
+        ...     return input + " initial"
+        >>> def feedback_runnable(data):
+        ...     return f"feedback: {data['input']} -> {data['output']}"
+        >>> def refine_runnable(data):
+        ...     return f"refined: '{data['input']}' '{data['output']}' with FB '{data['feedback']}'"
+        >>> self_refine_runnable = RunnableSelfRefine(
+        ...     runnable=RunnableLambda(initial_runnable),
+        ...     feedback=RunnableLambda(feedback_runnable),
+        ...     refine=RunnableLambda(refine_runnable),
+        ...     input_key="input",
+        ...     output_key="output",
+        ...     feedback_key="feedback",
+        ... )
+        >>> result = self_refine_runnable.invoke("test")
+        >>> print(result)
+        refined: 'test' 'test initial' with FB 'feedback: test -> test initial'
+    """
 
     _self_refine_chain: Runnable[Input, Output]
 
@@ -27,38 +65,13 @@ class RunnableSelfRefine(Runnable[Input, Output]):
         output_key: str = "output",
         feedback_key: str = "feedback",
     ):
-        self._self_refine_chain = (
+        super().__init__(
             RunnableParallel(**{
                 input_key: RunnablePassthrough(),  # type: ignore
                 output_key: runnable,
-            })
-            | RunnableParallel(**{
-                input_key: RunnablePassthrough().pick(input_key),
-                output_key: RunnablePassthrough().pick(output_key),
-                feedback_key: feedback,
-            })  # type: ignore
-            | refine
-        ).with_types(
-            input_type=runnable.InputType,  # type: ignore
-            output_type=refine.OutputType,
+            }),
+            RunnableAssign({
+                feedback_key: feedback,  # type: ignore
+            }),
+            refine,
         )
-
-    def invoke(self, *args, **kwargs) -> Output:
-        # To make it a concrete class
-        return self._self_refine_chain.invoke(*args, **kwargs)
-
-    def __getattribute__(self, name: str) -> Any:
-        if name in ["_self_refine_chain", "invoke"]:
-            return super().__getattribute__(name)
-        try:
-            return getattr(self._self_refine_chain, name)
-        except AttributeError:
-            return super().__getattribute__(name)
-
-    @property
-    def InputType(self) -> type[Input]:
-        return self._self_refine_chain.InputType
-
-    @property
-    def OutputType(self) -> type[Output]:
-        return self._self_refine_chain.OutputType
