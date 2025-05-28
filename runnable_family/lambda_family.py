@@ -18,6 +18,7 @@ class RunnablePartialLambda(RunnableLambda[Input, Output]):
         >>> partial_lambda = RunnablePartialLambda(my_func, a='A', b='B')
         >>> result = partial_lambda.invoke('x')
         >>> print(result)  # Output: 'xAB'
+        xAB
 
     Note:
         This class is equivalent to `RunnableLambda(partial(func, **kwargs))`.

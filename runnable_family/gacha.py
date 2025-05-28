@@ -34,6 +34,7 @@ class RunnableGacha(RunnableSequence[Input, list[Output]]):
         >>> gacha_runnable = RunnableGacha(RunnableLambda(my_runnable), n=5)
         >>> results = gacha_runnable.invoke(10)
         >>> print(results)  # Output: [20, 20, 20, 20, 20]
+        [20, 20, 20, 20, 20]
         >>> # This will run `my_runnable` 5 times in parallel with input 10
     """
 

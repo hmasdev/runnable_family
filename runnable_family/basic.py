@@ -17,6 +17,7 @@ class RunnableConstant(RunnableLambda[Input, Output]):
         >>> constant_runnable = RunnableConstant("Hello, World!")
         >>> result = constant_runnable.invoke("Any input")
         >>> print(result)  # Output: "Hello, World!"
+        Hello, World!
     """
 
     _constant: Output
@@ -45,12 +46,15 @@ class RunnableAdd(RunnableLambda[Input, Output]):
         >>> add_runnable = RunnableAdd(1)
         >>> result = add_runnable.invoke(10)
         >>> print(result)  # Output: 11
+        11
         >>> add_runnable = RunnableAdd([1], prepend=False)
         >>> result = add_runnable.invoke([10])
-        >>> print(result)  # Output: [11, 1]
+        >>> print(result)  # Output: [10, 1]
+        [10, 1]
         >>> add_runnable_right = RunnableAdd([1], prepend=True)
         >>> result = add_runnable_right.invoke([10])
         >>> print(result)  # Output: [1, 10]  # type: ignore
+        [1, 10]
     """
     _constant: Input
     _prepend: bool

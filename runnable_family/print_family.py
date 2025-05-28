@@ -20,6 +20,7 @@ class RunnableLog(RunnableLambda[T, T]):
         >>> result = log_runnable.invoke("Hello, World!")
         >>> # This will log "Hello, World!" using logging.info
         >>> print(result)  # Output: "Hello, World!"
+        Hello, World!
     """
 
     def __init__(
