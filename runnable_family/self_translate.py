@@ -61,7 +61,7 @@ class RunnableSelfTranslate(
         >>> _for_reference = translate_runnable_factory.invoke("test input")
         >>> print(_for_reference)
         test input translated final output
-    """
+    """  # noqa
 
     _translater: Runnable[Input, InterMediateInput]
     _inverse_translater: Runnable[InterMediateOutput, Output]
@@ -83,7 +83,7 @@ class RunnableSelfTranslate(
     def with_runnable(
         self,
         runnable: Runnable[InterMediateInput, InterMediateOutput],
-    ) -> "RunnableSelfTranslate[Input, Output, InterMediateInput, InterMediateOutput]":
+    ) -> "RunnableSelfTranslate[Input, Output, InterMediateInput, InterMediateOutput]":  # noqa
         return RunnableSelfTranslate(
             self._translater,
             self._inverse_translater,

@@ -6,7 +6,7 @@ from langchain_core.runnables import (
     RunnableSequence,
 )
 from langchain_core.runnables.base import Input, Output
-from typing import Any, TypeVar
+from typing import TypeVar
 
 InterMediate = TypeVar("InterMediate", covariant=True)
 InterMediate2 = TypeVar("InterMediate2", covariant=True)
@@ -52,7 +52,7 @@ class RunnableSelfRefine(RunnableSequence[Input, Output]):
         >>> result = self_refine_runnable.invoke("test")
         >>> print(result)
         refined: 'test' 'test initial' with FB 'feedback: test -> test initial'
-    """
+    """  # noqa
 
     _self_refine_chain: Runnable[Input, Output]
 

@@ -5,7 +5,6 @@ from langchain_core.runnables import (
     RunnableSequence,
 )
 from langchain_core.runnables.base import Input, Output
-from typing import Any
 
 
 class RunnableGacha(RunnableSequence[Input, list[Output]]):

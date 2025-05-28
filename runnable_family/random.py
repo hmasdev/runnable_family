@@ -117,10 +117,10 @@ class RunnableRandomBranch(RunnableSequence[Input, Output]):
                 *[
                     (
                         RunnablePick("rv")
-                        | RunnableLambda(partial(self._a_is_ge_0_le_b, b=thresh)),
+                        | RunnableLambda(partial(self._a_is_ge_0_le_b, b=thresh)),  # noqa
                         RunnablePick("x") | runnable,
                     )
-                    for runnable, thresh in zip(self._runnables, self._cum_probs)
+                    for runnable, thresh in zip(self._runnables, self._cum_probs)  # noqa
                 ],
                 (
                     RunnablePick("rv")

@@ -5,7 +5,7 @@ from langchain_core.runnables import (
     RunnableSequence,
 )
 from langchain_core.runnables.base import Input, Output
-from typing import Any, Iterable, TypeVar
+from typing import Iterable, TypeVar
 
 InterMediate = TypeVar("InterMediate", covariant=True)
 
@@ -39,7 +39,7 @@ class RunnableDiff(RunnableSequence[Input, Output]):
         >>> result = diff_runnable.invoke(10)
         >>> print(result)
         -1
-    """
+    """  # noqa
 
     def __init__(
         self,
@@ -48,7 +48,7 @@ class RunnableDiff(RunnableSequence[Input, Output]):
         diff: Runnable[Iterable[InterMediate], Output],
     ):
         super().__init__(
-            RunnableParallel(**{
+            RunnableParallel(**{  # type: ignore
                 'output1': runnable1,
                 'output2': runnable2,
             }),
