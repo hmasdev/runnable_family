@@ -6,13 +6,13 @@ from langchain_core.runnables import (
 from langchain_core.runnables.base import Input, Output
 from typing import Generic, TypeVar
 
-InterMediateInput = TypeVar("InterMediateInput", contravariant=True)
-InterMediateOutput = TypeVar("InterMediateOutput", covariant=True)
+IntermediateInput = TypeVar("IntermediateInput", contravariant=True)
+IntermediateOutput = TypeVar("IntermediateOutput", covariant=True)
 
 
 class RunnableSelfTranslate(
     RunnableSequence[Input, Output],
-    Generic[Input, Output, InterMediateInput, InterMediateOutput],
+    Generic[Input, Output, IntermediateInput, IntermediateOutput],
 ):
     """A runnable that implements the Self-Translate Chain methodology.
 
@@ -63,14 +63,14 @@ class RunnableSelfTranslate(
         test input translated final output
     """  # noqa
 
-    _translater: Runnable[Input, InterMediateInput]
-    _inverse_translater: Runnable[InterMediateOutput, Output]
+    _translater: Runnable[Input, IntermediateInput]
+    _inverse_translater: Runnable[IntermediateOutput, Output]
 
     def __init__(
         self,
-        translater: Runnable[Input, InterMediateInput],
-        inverse_translater: Runnable[InterMediateOutput, Output],
-        runnable: Runnable[InterMediateInput, InterMediateOutput] | None = None,  # noqa
+        translater: Runnable[Input, IntermediateInput],
+        inverse_translater: Runnable[IntermediateOutput, Output],
+        runnable: Runnable[IntermediateInput, IntermediateOutput] | None = None,  # noqa
     ):
         super().__init__(
             translater,
@@ -82,8 +82,8 @@ class RunnableSelfTranslate(
 
     def with_runnable(
         self,
-        runnable: Runnable[InterMediateInput, InterMediateOutput],
-    ) -> "RunnableSelfTranslate[Input, Output, InterMediateInput, InterMediateOutput]":  # noqa
+        runnable: Runnable[IntermediateInput, IntermediateOutput],
+    ) -> "RunnableSelfTranslate[Input, Output, IntermediateInput, IntermediateOutput]":  # noqa
         return RunnableSelfTranslate(
             self._translater,
             self._inverse_translater,
