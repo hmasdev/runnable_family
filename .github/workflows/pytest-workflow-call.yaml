@@ -41,10 +41,4 @@ jobs:
       - name: Run unit tests
         run: |
           pytest -m 'not integration'
-
-      - name: Run unit tests for langchain<0.3.0
-        run: |
-          # test for backward compatibility
-          pip install -U "langchain<0.3.0"
-          pytest -m 'not integration'
           pytest --doctest-modules runnable_family

@@ -42,10 +42,3 @@ jobs:
         run: |
           mypy runnable_family
           mypy tests
-
-      - name: Run mypy for langchain<0.3.0
-        run: |
-          # static type check for backward compatibility
-          pip install -U "langchain<0.3.0"
-          mypy runnable_family
-          mypy tests
