@@ -47,3 +47,4 @@ jobs:
           # test for backward compatibility
           pip install -U "langchain<0.3.0"
           pytest -m 'not integration'
+          pytest --doctest-modules runnable_family
