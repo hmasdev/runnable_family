@@ -21,8 +21,46 @@ else:
 
 
 class RunnableLoopback(Runnable[Input, Output]):
-    '''Runnable that loops back the output to the input.
-    '''
+    """Runnable that loops back the output to the input until a condition is met.
+    This runnable is useful for scenarios where you want to repeatedly process
+    the output of a runnable until a certain condition is satisfied, such as
+    in iterative algorithms or feedback loops.
+
+    Args:
+        runnable (Runnable[Input, Output]): The runnable to be looped back.
+            This is the main processing unit that will be executed repeatedly.
+        condition (Runnable[Output, bool] | Callable[[Output], bool]): A
+            condition that determines whether to continue looping back or not.
+            If a callable is provided, it will be wrapped in a RunnableLambda.
+        loopback (Runnable[Output, Input]): A runnable that takes the output
+            of the main runnable and transforms it back into the input format
+            for the next iteration.
+
+    Attributes:
+        _graph (CompiledGraph): Compiled graph of the runnable.
+        _runnable (Runnable[Input, Output]): The main runnable to be looped back.
+        _condition (Runnable[Output, bool]): Condition to determine if looping continues.
+        _loopback (Runnable[Output, Input]): Runnable to transform output back to input.
+
+    Example:
+        >>> from runnable_family.loopback import RunnableLoopback
+        >>> from langchain_core.runnables import RunnableLambda
+        >>> def my_runnable(x):
+        ...     return x + 1
+        >>> def my_condition(output):
+        ...     return output < 5
+        >>> def my_loopback(output):
+        ...     return output * 2
+        >>> loopback_runnable = RunnableLoopback(
+        ...    runnable=RunnableLambda(my_runnable),
+        ...    condition=RunnableLambda(my_condition),
+        ...    loopback=RunnableLambda(my_loopback)
+        ... )
+        >>> result = loopback_runnable.invoke(0)
+        >>> print(result)  # Output: 7
+        7
+        >>> # 0 -(my_runnable)-> 1 -(my_loopback)-> 2 -(my_runnable)-> 3 -(my_loopback)-> 6 -(my_runnable)-> 7
+    """  # noqa
 
     _graph: CompiledGraph
     '''Compiled graph of the runnable.'''
