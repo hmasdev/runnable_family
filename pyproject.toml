@@ -11,11 +11,7 @@ name = "runnable_family"
 description = "A python library implementing a family of Runnables in langchain"
 dynamic = ["version"]
 readme = "README.md"
-dependencies = [
-    "grandalf >= 0.8",
-    "langchain >= 0.1.13",
-    "langgraph>=0.0.32,!=0.1.18",
-]
+dependencies = ["grandalf >= 0.8", "langchain >= 0.3.0", "langgraph>=0.4.0"]
 requires-python = ">=3.10"
 authors = [{ name = "hmasdev" }]
 maintainers = [{ name = "hmasdev" }]
