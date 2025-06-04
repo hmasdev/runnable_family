@@ -18,7 +18,7 @@ class RunnableAddConstant(RunnableLambda[Input, Output]):
         _prepend (bool): Whether to prepend the constant to the input.
 
     Example:
-        >>> from runnable_family.basic import RunnableAdd
+        >>> from runnable_family.operator import RunnableAdd
         >>> add_runnable = RunnableAdd(1)
         >>> result = add_runnable.invoke(10)
         >>> print(result)  # Output: 11

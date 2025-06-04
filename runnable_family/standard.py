@@ -13,7 +13,7 @@ class RunnableConstant(RunnableLambda[Input, Output]):
         _constant (Output): The constant value to return.
 
     Example:
-        >>> from runnable_family.basic import RunnableConstant
+        >>> from runnable_family.standard import RunnableConstant
         >>> constant_runnable = RunnableConstant("Hello, World!")
         >>> result = constant_runnable.invoke("Any input")
         >>> print(result)  # Output: "Hello, World!"
