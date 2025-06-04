@@ -58,7 +58,7 @@ class RunnableAddConstant(RunnableLambda[Input, Output]):
 class RunnableAdd(RunnableAddConstant):
     """Runnable that adds a constant to the input.
 
-    .. warrning::
+    .. warning::
         This class is planned to be updated breakingly in >=0.1.0 version.
         The current behavior is equivalent to `RunnableAddConstant`.
         In the future, it will be updated to be like a binary operator
