@@ -1,4 +1,4 @@
-from .standard import RunnableConstant, RunnableAdd
+from .basic import RunnableAdd
 from .gacha import RunnableGacha
 from .loopback import RunnableLoopback
 from .random import RunnableRandomBranch
@@ -6,6 +6,7 @@ from .runnable_diff import RunnableDiff
 from .self_consistent import RunnableSelfConsistent
 from .self_refine import RunnableSelfRefine
 from .self_translate import RunnableSelfTranslate
+from .standard import RunnableConstant
 
 __version__ = 'v0.0.0a3'
 __all__ = [
