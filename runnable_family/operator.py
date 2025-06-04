@@ -2,7 +2,7 @@ from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.base import Input, Output
 
 
-class RunnableAdd(RunnableLambda[Input, Output]):
+class RunnableAddConstant(RunnableLambda[Input, Output]):
     """Runnable that adds a constant to the input.
 
     Args:

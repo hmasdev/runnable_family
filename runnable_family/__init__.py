@@ -1,4 +1,4 @@
-from .operator import RunnableAdd
+from .operator import RunnableAddConstant
 from .gacha import RunnableGacha
 from .loopback import RunnableLoopback
 from .random import RunnableRandomBranch
@@ -11,7 +11,7 @@ from .standard import RunnableConstant
 __version__ = 'v0.0.0a3'
 __all__ = [
     RunnableConstant.__name__,
-    RunnableAdd.__name__,
+    RunnableAddConstant.__name__,
     RunnableLoopback.__name__,
     RunnableRandomBranch.__name__,
     RunnableGacha.__name__,
