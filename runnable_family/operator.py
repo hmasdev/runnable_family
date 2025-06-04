@@ -72,8 +72,8 @@ class RunnableAdd(RunnableAddConstant):
         super().__init__(*args, **kwargs)
         import warnings
         warnings.warn(
-            "RunnableAdd is planned to be updated breakingly in >=0.1.0 version. "
-            "Use RunnableAddConstant instead to use the current (0.0.x) behavior. ",
+            "RunnableAdd is planned to be updated breakingly in >=0.1.0 version. "  # noqa
+            "Use RunnableAddConstant instead to use the current (0.0.x) behavior. ",  # noqa
             FutureWarning,
             stacklevel=2,
         )
