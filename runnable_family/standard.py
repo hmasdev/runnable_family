@@ -23,4 +23,9 @@ class RunnableConstant(RunnableLambda[Input, Output]):
     _constant: Output
 
     def __init__(self, constant: Output, *args, **kwargs):
-        super().__init__(lambda _: constant, *args, **kwargs)
+        super().__init__(self._return_constant, *args, **kwargs)
+        self._constant = constant
+
+    def _return_constant(self, _: Input) -> Output:
+        """Return the constant value."""
+        return self._constant
