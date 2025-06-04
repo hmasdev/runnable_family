@@ -1,5 +1,5 @@
 import pytest
-from runnable_family.basic import (
+from runnable_family.operator import (
     RunnableAdd,
 )
 

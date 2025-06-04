@@ -12,7 +12,7 @@ import langchain_core.runnables.graph
 from langgraph.graph.graph import Graph, CompiledGraph, END
 from typing import Callable
 from uuid import uuid4
-from .basic import RunnableAdd
+from .operator import RunnableAdd
 from .standard import RunnableConstant
 
 if langchain.__version__ < '0.3.0':
