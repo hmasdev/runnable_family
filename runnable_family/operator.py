@@ -53,3 +53,27 @@ class RunnableAddConstant(RunnableLambda[Input, Output]):
             return self._constant + x  # type: ignore
         else:
             return x + self._constant  # type: ignore
+
+
+class RunnableAdd(RunnableAddConstant):
+    """Runnable that adds a constant to the input.
+
+    .. warrning::
+        This class is planned to be updated breakingly in >=0.1.0 version.
+        The current behavior is equivalent to `RunnableAddConstant`.
+        In the future, it will be updated to be like a binary operator
+        that takes two inputs and adds them together.
+
+    .. deprecated:: 0.1.0
+        Use `RunnableAddConstant` instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        import warnings
+        warnings.warn(
+            "RunnableAdd is planned to be updated breakingly in >=0.1.0 version. "
+            "Use RunnableAddConstant instead to use the current (0.0.x) behavior. ",
+            FutureWarning,
+            stacklevel=2,
+        )
