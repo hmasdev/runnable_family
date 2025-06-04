@@ -2,31 +2,7 @@ from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.base import Input, Output
 
 
-class RunnableConstant(RunnableLambda[Input, Output]):
-    """Runnable that always returns a constant value.
-
-    Args:
-        constant: The constant value to return, regardless of the input.
-            The input is ignored.
-
-    Attributes:
-        _constant (Output): The constant value to return.
-
-    Example:
-        >>> from runnable_family.basic import RunnableConstant
-        >>> constant_runnable = RunnableConstant("Hello, World!")
-        >>> result = constant_runnable.invoke("Any input")
-        >>> print(result)  # Output: "Hello, World!"
-        Hello, World!
-    """
-
-    _constant: Output
-
-    def __init__(self, constant: Output, *args, **kwargs):
-        super().__init__(lambda _: constant, *args, **kwargs)
-
-
-class RunnableAdd(RunnableLambda[Input, Output]):
+class RunnableAddConstant(RunnableLambda[Input, Output]):
     """Runnable that adds a constant to the input.
 
     Args:
@@ -42,7 +18,7 @@ class RunnableAdd(RunnableLambda[Input, Output]):
         _prepend (bool): Whether to prepend the constant to the input.
 
     Example:
-        >>> from runnable_family.basic import RunnableAdd
+        >>> from runnable_family.operator import RunnableAdd
         >>> add_runnable = RunnableAdd(1)
         >>> result = add_runnable.invoke(10)
         >>> print(result)  # Output: 11
@@ -77,3 +53,27 @@ class RunnableAdd(RunnableLambda[Input, Output]):
             return self._constant + x  # type: ignore
         else:
             return x + self._constant  # type: ignore
+
+
+class RunnableAdd(RunnableAddConstant):
+    """Runnable that adds a constant to the input.
+
+    .. warning::
+        This class is planned to be updated breakingly in >=0.1.0 version.
+        The current behavior is equivalent to `RunnableAddConstant`.
+        In the future, it will be updated to be like a binary operator
+        that takes two inputs and adds them together.
+
+    .. deprecated:: 0.1.0
+        Use `RunnableAddConstant` instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        import warnings
+        warnings.warn(
+            "RunnableAdd is planned to be updated breakingly in >=0.1.0 version. "  # noqa
+            "Use RunnableAddConstant instead to use the current (0.0.x) behavior. ",  # noqa
+            FutureWarning,
+            stacklevel=2,
+        )

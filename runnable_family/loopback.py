@@ -12,7 +12,8 @@ import langchain_core.runnables.graph
 from langgraph.graph.graph import Graph, CompiledGraph, END
 from typing import Callable
 from uuid import uuid4
-from .basic import RunnableConstant, RunnableAdd
+from .operator import RunnableAddConstant
+from .standard import RunnableConstant
 
 if langchain.__version__ < '0.3.0':
     from langchain.pydantic_v1 import create_model
@@ -148,7 +149,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         _condition = RunnablePassthrough().pick(counter_key) | RunnableLambda(lambda x: x < n)  # noqa
         _loopback = RunnableParallel(**{
             output_key: RunnablePassthrough().pick(output_key) | loopback,
-            counter_key: RunnablePassthrough().pick(counter_key) | RunnableAdd(1),  # noqa
+            counter_key: RunnablePassthrough().pick(counter_key) | RunnableAddConstant(1),  # noqa
         })  # type: ignore
         return cls(
             runnable=_runnable,  # type: ignore
