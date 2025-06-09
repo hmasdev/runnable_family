@@ -2,6 +2,8 @@ import pytest
 from typing import Callable
 from runnable_family.lambda_family import (
     RunnablePartialLambda,
+    RunnableUnpackLambda,
+    RunnableDictUnpackLambda,
 )
 
 
@@ -25,3 +27,57 @@ def test_runnable_partial_lambda(
     partial_lambda = RunnablePartialLambda(mock_func, **kwargs)
     assert partial_lambda.invoke(input_obj) == expected
     mock_func.assert_called_once_with(input_obj, **kwargs)
+
+
+@pytest.mark.parametrize(
+    'input_obj, func, expected',
+    [
+        (
+            [1, 2, 3],
+            lambda x, y, z: (x + y, z),
+            (3, 3)
+        ),
+        (
+            ('a', 'b', 'c'),
+            lambda x, y, z: (x + y + z, x),
+            ('abc', 'a')
+        )
+    ]
+)
+def test_runnable_unpack_lambda(
+    input_obj: list | tuple,
+    func: Callable[..., tuple[int | str, int | str]],
+    expected: tuple[int | str, int | str],
+    mocker,
+) -> None:
+    mock_func = mocker.MagicMock(side_effect=func)
+    unpack_lambda = RunnableUnpackLambda(mock_func)  # type: ignore
+    assert unpack_lambda.invoke(input_obj) == expected
+    mock_func.assert_called_once_with(*input_obj)
+
+
+@pytest.mark.parametrize(
+    'input_obj, func, expected',
+    [
+        (
+            {'x': 1, 'y': 2, 'z': 3},
+            lambda x, y, z: (x + y, z),
+            (3, 3)
+        ),
+        (
+            {'x': 'a', 'y': 'b', 'z': 'c'},
+            lambda x, y, z: (x + y + z, x),
+            ('abc', 'a')
+        )
+    ]
+)
+def test_runnable_dict_unpack_lambda(
+    input_obj: dict[str, int | str],
+    func: Callable[..., tuple[int | str, int | str]],
+    expected: tuple[int | str, int | str],
+    mocker,
+) -> None:
+    mock_func = mocker.MagicMock(side_effect=func)
+    unpack_lambda = RunnableDictUnpackLambda(mock_func)  # type: ignore
+    assert unpack_lambda.invoke(input_obj) == expected
+    mock_func.assert_called_once_with(**input_obj)
