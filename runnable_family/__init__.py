@@ -8,7 +8,7 @@ from .self_refine import RunnableSelfRefine
 from .self_translate import RunnableSelfTranslate
 from .standard import RunnableConstant
 
-__version__ = 'v0.0.0a3'
+__version__ = 'v0.0.0a4'
 __all__ = [
     RunnableConstant.__name__,
     RunnableAddConstant.__name__,
