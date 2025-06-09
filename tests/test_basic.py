@@ -1,25 +1,7 @@
 import pytest
-from runnable_family.basic import (
-    RunnableAdd,
-    RunnableConstant,
+from runnable_family.operator import (
+    RunnableAddConstant,
 )
-
-
-@pytest.mark.parametrize(
-    'input_obj, expected',
-    [
-        (0, 0),
-        ('a', 0),
-        ({'a': 1}, 0),
-        ({'a': 1}, 1),
-    ]
-)
-def test_runnable_constant(
-    input_obj,
-    expected,
-):
-    constant = RunnableConstant(expected)
-    assert constant.invoke(input_obj) == expected
 
 
 @pytest.mark.parametrize(
@@ -38,10 +20,10 @@ def test_runnable_add(
     expected: str | int,
 ):
     assert type(x) is type(constant)
-    add_b: RunnableAdd = RunnableAdd(constant, prepend=prepend)
+    add_b: RunnableAddConstant = RunnableAddConstant(constant, prepend=prepend)
     assert add_b.invoke(x) == expected
 
 
 def test_runnable_add_with_non_addable():
     with pytest.raises(TypeError):
-        RunnableAdd({'a': 1}).invoke({'a': 1})
+        RunnableAddConstant({'a': 1}).invoke({'a': 1})
