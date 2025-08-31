@@ -9,7 +9,8 @@ from langchain_core.runnables import (
 )
 from langchain_core.runnables.base import Input, Output
 import langchain_core.runnables.graph
-from langgraph.graph.graph import Graph, CompiledGraph, END
+from langgraph.graph import StateGraph, END
+from langgraph.graph.state import CompiledStateGraph
 from typing import Callable
 from uuid import uuid4
 from .operator import RunnableAddConstant
@@ -38,7 +39,7 @@ class RunnableLoopback(Runnable[Input, Output]):
             for the next iteration.
 
     Attributes:
-        _graph (CompiledGraph): Compiled graph of the runnable.
+        _graph (CompiledStateGraph): Compiled graph of the runnable.
         _runnable (Runnable[Input, Output]): The main runnable to be looped back.
         _condition (Runnable[Output, bool]): Condition to determine if looping continues.
         _loopback (Runnable[Output, Input]): Runnable to transform output back to input.
@@ -63,7 +64,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         >>> # 0 -(my_runnable)-> 1 -(my_loopback)-> 2 -(my_runnable)-> 3 -(my_loopback)-> 6 -(my_runnable)-> 7
     """  # noqa
 
-    _graph: CompiledGraph
+    _graph: CompiledStateGraph
     '''Compiled graph of the runnable.'''
 
     _runnable: Runnable[Input, Output]
@@ -88,7 +89,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         self._loopback = loopback
 
         # create graph
-        graph = Graph()
+        graph = StateGraph(Input)
         graph.add_node('runnable', runnable)
         graph.add_node('loopback', loopback)
         graph.add_conditional_edges(
