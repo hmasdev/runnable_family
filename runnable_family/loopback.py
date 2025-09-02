@@ -1,3 +1,7 @@
+from operator import itemgetter
+from typing import Callable, Generic, TypedDict, cast
+from uuid import uuid4
+
 import langchain
 from langchain_core.runnables import (
     Runnable,
@@ -11,8 +15,7 @@ from langchain_core.runnables.base import Input, Output
 import langchain_core.runnables.graph
 from langgraph.graph import StateGraph, END
 from langgraph.graph.state import CompiledStateGraph
-from typing import Callable
-from uuid import uuid4
+
 from .operator import RunnableAddConstant
 from .standard import RunnableConstant
 
@@ -88,13 +91,40 @@ class RunnableLoopback(Runnable[Input, Output]):
             self._condition = condition
         self._loopback = loopback
 
+        # define internal state schema
+        class _InternalStateSchema(TypedDict):
+            input: Input
+            output: Output
+
         # create graph
-        graph = StateGraph(Input)
-        graph.add_node('runnable', runnable)
-        graph.add_node('loopback', loopback)
+        graph = StateGraph(_InternalStateSchema)
+        graph.add_node(
+            'runnable',
+            (
+                RunnableLambda(itemgetter('input'))
+                | RunnableParallel(
+                    input=RunnablePassthrough(),
+                    output=runnable,
+                )
+            ),
+        )
+        graph.add_node(
+            'loopback',
+            (
+                RunnableLambda(itemgetter('output'))
+                | RunnableParallel(
+                    output=RunnablePassthrough(),
+                    input=loopback,
+                )
+            ),
+        )
         graph.add_conditional_edges(
             'runnable',
-            condition | RunnableLambda(lambda b: 'continue' if b else 'end'),
+            (
+                RunnableLambda(itemgetter('output'))
+                | condition
+                | RunnableLambda(lambda b: 'continue' if b else 'end')
+            ),
             {
                 'continue': 'loopback',
                 'end': END,
@@ -105,7 +135,9 @@ class RunnableLoopback(Runnable[Input, Output]):
         self._graph = graph.compile()
 
     def invoke(self, input: Input, *args, **kwargs) -> Output:
-        return self._graph.invoke(input, *args, **kwargs)  # type: ignore
+        input_ = self._InternalStateSchema(input=input)  # type: ignore
+        output_ = self._graph.invoke(input_, *args, **kwargs)  # type: ignore
+        return cast(Output, output_["output"])
 
     @classmethod
     def with_n_loop(
