@@ -135,7 +135,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         self._graph = graph.compile()
 
     def invoke(self, input: Input, *args, **kwargs) -> Output:
-        input_ = self._InternalStateSchema(input=input)  # type: ignore
+        input_ = dict(input=input)  # type: ignore
         output_ = self._graph.invoke(input_, *args, **kwargs)  # type: ignore
         return cast(Output, output_["output"])
 
