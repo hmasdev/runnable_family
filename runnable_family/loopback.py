@@ -1,5 +1,5 @@
 from operator import itemgetter
-from typing import Callable, Generic, TypedDict, cast
+from typing import Callable, TypedDict, cast
 from uuid import uuid4
 
 import langchain
