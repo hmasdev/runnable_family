@@ -1,3 +1,7 @@
+from operator import itemgetter
+from typing import Callable, TypedDict, cast
+from uuid import uuid4
+
 import langchain
 from langchain_core.runnables import (
     Runnable,
@@ -9,9 +13,9 @@ from langchain_core.runnables import (
 )
 from langchain_core.runnables.base import Input, Output
 import langchain_core.runnables.graph
-from langgraph.graph.graph import Graph, CompiledGraph, END
-from typing import Callable
-from uuid import uuid4
+from langgraph.graph import StateGraph, END
+from langgraph.graph.state import CompiledStateGraph
+
 from .operator import RunnableAddConstant
 from .standard import RunnableConstant
 
@@ -38,7 +42,7 @@ class RunnableLoopback(Runnable[Input, Output]):
             for the next iteration.
 
     Attributes:
-        _graph (CompiledGraph): Compiled graph of the runnable.
+        _graph (CompiledStateGraph): Compiled graph of the runnable.
         _runnable (Runnable[Input, Output]): The main runnable to be looped back.
         _condition (Runnable[Output, bool]): Condition to determine if looping continues.
         _loopback (Runnable[Output, Input]): Runnable to transform output back to input.
@@ -63,7 +67,7 @@ class RunnableLoopback(Runnable[Input, Output]):
         >>> # 0 -(my_runnable)-> 1 -(my_loopback)-> 2 -(my_runnable)-> 3 -(my_loopback)-> 6 -(my_runnable)-> 7
     """  # noqa
 
-    _graph: CompiledGraph
+    _graph: CompiledStateGraph
     '''Compiled graph of the runnable.'''
 
     _runnable: Runnable[Input, Output]
@@ -87,13 +91,40 @@ class RunnableLoopback(Runnable[Input, Output]):
             self._condition = condition
         self._loopback = loopback
 
+        # define internal state schema
+        class _InternalStateSchema(TypedDict):
+            input: Input
+            output: Output
+
         # create graph
-        graph = Graph()
-        graph.add_node('runnable', runnable)
-        graph.add_node('loopback', loopback)
+        graph = StateGraph(_InternalStateSchema)
+        graph.add_node(
+            'runnable',
+            (
+                RunnableLambda(itemgetter('input'))
+                | RunnableParallel(
+                    input=RunnablePassthrough(),
+                    output=runnable,
+                )
+            ),
+        )
+        graph.add_node(
+            'loopback',
+            (
+                RunnableLambda(itemgetter('output'))
+                | RunnableParallel(
+                    output=RunnablePassthrough(),
+                    input=loopback,
+                )
+            ),
+        )
         graph.add_conditional_edges(
             'runnable',
-            condition | RunnableLambda(lambda b: 'continue' if b else 'end'),
+            (
+                RunnableLambda(itemgetter('output'))
+                | condition
+                | RunnableLambda(lambda b: 'continue' if b else 'end')
+            ),
             {
                 'continue': 'loopback',
                 'end': END,
@@ -104,7 +135,9 @@ class RunnableLoopback(Runnable[Input, Output]):
         self._graph = graph.compile()
 
     def invoke(self, input: Input, *args, **kwargs) -> Output:
-        return self._graph.invoke(input, *args, **kwargs)  # type: ignore
+        input_ = dict(input=input)  # type: ignore
+        output_ = self._graph.invoke(input_, *args, **kwargs)  # type: ignore
+        return cast(Output, output_["output"])
 
     @classmethod
     def with_n_loop(
