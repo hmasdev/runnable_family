@@ -19,8 +19,8 @@ from langgraph.graph.state import CompiledStateGraph
 from .operator import RunnableAddConstant
 from .standard import RunnableConstant
 
-# For mypy: use pydantic.create_model since langchain.pydantic_v1
-# no longer exists
+# For mypy static analysis: import from pydantic directly since
+# langchain.pydantic_v1 module cannot be found during type checking
 if TYPE_CHECKING:
     from pydantic import create_model
 elif langchain.__version__ < '0.3.0':
