@@ -1,5 +1,5 @@
 from operator import itemgetter
-from typing import Callable, TypedDict, cast
+from typing import TYPE_CHECKING, Callable, TypedDict, cast
 from uuid import uuid4
 
 import langchain
@@ -19,7 +19,11 @@ from langgraph.graph.state import CompiledStateGraph
 from .operator import RunnableAddConstant
 from .standard import RunnableConstant
 
-if langchain.__version__ < '0.3.0':
+# For mypy static analysis: import from pydantic directly since
+# langchain.pydantic_v1 module cannot be found during type checking
+if TYPE_CHECKING:
+    from pydantic import create_model
+elif langchain.__version__ < '0.3.0':
     from langchain.pydantic_v1 import create_model
 else:
     from pydantic import create_model  # type: ignore
